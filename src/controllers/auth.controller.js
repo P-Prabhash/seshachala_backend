@@ -23,12 +23,16 @@ const getLogin = asyncHandler(async (req, res) => {
 const postLogin = asyncHandler(async (req, res) => {
   const username = (req.body.username || '').trim();
   const password = req.body.password || '';
+  const wantsJson = req.xhr || (req.headers['accept'] && req.headers['accept'].includes('json')) || (req.headers['content-type'] && req.headers['content-type'].includes('json'));
 
   try {
     const user = await authService.authenticateUser(username, password);
 
     req.session.regenerate((err) => {
       if (err) {
+        if (wantsJson) {
+          return res.status(500).json({ success: false, message: 'Session error. Please try again.' });
+        }
         req.flash('error', 'Session error. Please try again.');
         return res.redirect('/login');
       }
@@ -38,6 +42,19 @@ const postLogin = asyncHandler(async (req, res) => {
       req.session.full_name = user.full_name;
       req.session.role = user.role;
 
+      if (wantsJson) {
+        return res.json({
+          success: true,
+          message: 'Login successful',
+          user: {
+            id: user.id,
+            username: user.username,
+            full_name: user.full_name,
+            role: user.role
+          }
+        });
+      }
+
       let nextUrl = (req.query.next || '').trim();
       if (!nextUrl.startsWith('/') || nextUrl.startsWith('//')) {
         nextUrl = '/dashboard';
@@ -46,6 +63,9 @@ const postLogin = asyncHandler(async (req, res) => {
       res.redirect(nextUrl);
     });
   } catch (error) {
+    if (wantsJson) {
+      return res.status(400).json({ success: false, message: error.message || 'Invalid username or password.' });
+    }
     req.flash('error', error.message || 'Invalid username or password.');
     res.redirect('/login');
   }
