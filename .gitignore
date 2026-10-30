@@ -1,0 +1,12 @@
+node_modules/
+.env
+data/*.db
+data/*.sqlite
+static/uploads/students/*
+!static/uploads/students/.gitkeep
+logs/
+coverage/
+.idea/
+__pycache__/
+*.pyc
+venv/

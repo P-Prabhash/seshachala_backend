@@ -1,0 +1,141 @@
+openapi: 3.0.3
+info:
+  title: Seshachala Student Fee Management API
+  description: Complete Node.js + Express + MySQL REST and Web API documentation for Seshachala Fee Management System.
+  version: 1.0.0
+servers:
+  - url: http://127.0.0.1:5000
+    description: Local Development Server
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Returns service operational status and database readiness.
+      responses:
+        '200':
+          description: Service and database are healthy.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: UP
+                  service:
+                    type: string
+                    example: seshachala-fee-management
+                  timestamp:
+                    type: string
+                    format: date-time
+                  database:
+                    type: string
+                    example: connected
+        '503':
+          description: Database connection unavailable.
+
+  /login:
+    get:
+      summary: Render Login Page / Intro Redirect
+      responses:
+        '200':
+          description: HTML Login view rendered.
+    post:
+      summary: Authenticate User
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  example: admin
+                password:
+                  type: string
+                  example: admin123
+      responses:
+        '302':
+          description: Successful authentication, redirecting to dashboard.
+        '401':
+          description: Invalid credentials.
+
+  /logout:
+    get:
+      summary: Clear User Session
+      responses:
+        '302':
+          description: Redirect to login page.
+
+  /api/contact:
+    post:
+      summary: Submit Contact Form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - message
+              properties:
+                name:
+                  type: string
+                  example: John Doe
+                email:
+                  type: string
+                  example: john@example.com
+                subject:
+                  type: string
+                  example: Inquiry
+                message:
+                  type: string
+                  example: Hello, I have a query about fees.
+      responses:
+        '201':
+          description: Contact message recorded in MySQL database.
+    get:
+      summary: Retrieve Contact Messages
+      responses:
+        '200':
+          description: List of contact messages.
+
+  /api/students/{id}:
+    get:
+      summary: Get Student Info & Outstanding Fee Balance
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Student fee statement data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  admission_no:
+                    type: string
+                  total_fee:
+                    type: number
+                  paid:
+                    type: number
+                  balance:
+                    type: number
+        '404':
+          description: Student not found.
