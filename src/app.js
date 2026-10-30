@@ -22,8 +22,11 @@ app.use(helmet({
 }));
 app.use(cors({
   origin: true,
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With']
 }));
+app.options('*', cors());
 
 // Body parsers
 app.use(express.json());
