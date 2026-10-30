@@ -6,7 +6,7 @@ function errorHandler(err, req, res, next) {
 
   logger.error('Unhandled application error: %s | Stack: %s', message, err.stack);
 
-  if (req.originalUrl.startsWith('/api/') || req.headers.accept === 'application/json') {
+  if (req.originalUrl.startsWith('/api/') || (req.headers.accept && req.headers.accept.includes('json')) || req.xhr) {
     return res.status(statusCode).json({
       success: false,
       message,
@@ -14,9 +14,24 @@ function errorHandler(err, req, res, next) {
     });
   }
 
-  res.status(statusCode).render('error.html', {
-    message
-  });
+  try {
+    return res.status(statusCode).render('error.html', { message });
+  } catch (renderErr) {
+    return res.status(statusCode).send(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Error - Seshachala Fee Management</title>
+          <style>body { font-family: system-ui, sans-serif; text-align: center; padding: 50px; background: #f8f9fa; }</style>
+        </head>
+        <body>
+          <h2>Application Error (${statusCode})</h2>
+          <p>${message}</p>
+          <a href="/login" style="color: #0d6efd; text-decoration: none;">Return to Login</a>
+        </body>
+      </html>
+    `);
+  }
 }
 
 module.exports = errorHandler;

@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const nunjucks = require('nunjucks');
 const session = require('express-session');
 const flash = require('connect-flash');
@@ -29,7 +30,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files
-app.use('/static', express.static(path.join(__dirname, '../../seshachala_frontend/static')));
+const staticDirs = [
+  path.join(__dirname, '../static'),
+  path.join(__dirname, '../../seshachala_frontend/static')
+].filter(d => fs.existsSync(d));
+app.use('/static', express.static(staticDirs[0] || path.join(__dirname, '../static')));
 
 // Session configuration
 app.use(session({
@@ -46,7 +51,18 @@ app.use(session({
 app.use(flash());
 
 // Nunjucks template engine setup
-const env = nunjucks.configure(path.join(__dirname, '../../seshachala_frontend/templates'), {
+const templateDirs = [
+  path.join(__dirname, '../templates'),
+  path.join(__dirname, '../../seshachala_frontend/templates')
+].filter(d => fs.existsSync(d));
+
+if (templateDirs.length === 0) {
+  const defaultTemplates = path.join(__dirname, '../templates');
+  fs.mkdirSync(defaultTemplates, { recursive: true });
+  templateDirs.push(defaultTemplates);
+}
+
+const env = nunjucks.configure(templateDirs, {
   autoescape: true,
   express: app,
   noCache: config.nodeEnv === 'development'

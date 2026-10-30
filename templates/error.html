@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Error - Seshachala Fee Management</title>
+  <style>
+    body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f8fafc; }
+    .box { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; }
+    h2 { color: #dc2626; margin-bottom: 0.5rem; }
+    p { color: #475569; }
+    a { color: #2563eb; text-decoration: none; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Notice</h2>
+    <p>{{ message if message else "An unexpected error occurred." }}</p>
+    <a href="/login">Return to Login</a>
+  </div>
+</body>
+</html>
